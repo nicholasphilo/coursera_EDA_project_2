@@ -2,7 +2,7 @@
 title: "coursera EDA project 2"
 author: "Nicholas Philo"
 date: "27/07/2020"
-output: html_document
+output:github_document
 ---
 
 ```{r setup, include=FALSE}
