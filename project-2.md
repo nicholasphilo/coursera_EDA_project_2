@@ -3,33 +3,87 @@ Project 2
 Nicholas Philo
 27/07/2020
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax
-for authoring HTML, PDF, and MS Word documents. For more details on
-using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that
-includes both content as well as the output of any embedded R code
-chunks within the document. You can embed an R code chunk like this:
+## Downloading the data
 
 ``` r
-summary(cars)
+library(tidyr)
 ```
 
-    ##      speed           dist       
-    ##  Min.   : 4.0   Min.   :  2.00  
-    ##  1st Qu.:12.0   1st Qu.: 26.00  
-    ##  Median :15.0   Median : 36.00  
-    ##  Mean   :15.4   Mean   : 42.98  
-    ##  3rd Qu.:19.0   3rd Qu.: 56.00  
-    ##  Max.   :25.0   Max.   :120.00
+``` r
+dta_url <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2FNEI_data.zip"
+download.file(dta_url , destfile = "unzipme.zip", method = "curl")
+unzip("unzipme.zip")
+```
 
-## Including Plots
+## Reading in the data
 
-You can also embed plots, for example:
+``` r
+NEI <- as_tibble(readRDS("summarySCC_PM25.rds"))
+SCC <- as_tibble(readRDS("Source_Classification_Code.rds"))
+```
 
-![](project-2_files/figure-gfm/pressure-1.png)<!-- -->
+now investigating the data:
 
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
+``` r
+head(NEI)
+```
+
+    ## # A tibble: 6 x 6
+    ##   fips  SCC      Pollutant Emissions type   year
+    ##   <chr> <chr>    <chr>         <dbl> <chr> <int>
+    ## 1 09001 10100401 PM25-PRI     15.7   POINT  1999
+    ## 2 09001 10100404 PM25-PRI    234.    POINT  1999
+    ## 3 09001 10100501 PM25-PRI      0.128 POINT  1999
+    ## 4 09001 10200401 PM25-PRI      2.04  POINT  1999
+    ## 5 09001 10200504 PM25-PRI      0.388 POINT  1999
+    ## 6 09001 10200602 PM25-PRI      1.49  POINT  1999
+
+``` r
+str(NEI)
+```
+
+    ## tibble [6,497,651 × 6] (S3: tbl_df/tbl/data.frame)
+    ##  $ fips     : chr [1:6497651] "09001" "09001" "09001" "09001" ...
+    ##  $ SCC      : chr [1:6497651] "10100401" "10100404" "10100501" "10200401" ...
+    ##  $ Pollutant: chr [1:6497651] "PM25-PRI" "PM25-PRI" "PM25-PRI" "PM25-PRI" ...
+    ##  $ Emissions: num [1:6497651] 15.714 234.178 0.128 2.036 0.388 ...
+    ##  $ type     : chr [1:6497651] "POINT" "POINT" "POINT" "POINT" ...
+    ##  $ year     : int [1:6497651] 1999 1999 1999 1999 1999 1999 1999 1999 1999 1999 ...
+
+``` r
+head(SCC)
+```
+
+    ## # A tibble: 6 x 15
+    ##   SCC   Data.Category Short.Name EI.Sector Option.Group Option.Set SCC.Level.One
+    ##   <fct> <fct>         <fct>      <fct>     <fct>        <fct>      <fct>        
+    ## 1 1010… Point         Ext Comb … Fuel Com… ""           ""         External Com…
+    ## 2 1010… Point         Ext Comb … Fuel Com… ""           ""         External Com…
+    ## 3 1010… Point         Ext Comb … Fuel Com… ""           ""         External Com…
+    ## 4 1010… Point         Ext Comb … Fuel Com… ""           ""         External Com…
+    ## 5 1010… Point         Ext Comb … Fuel Com… ""           ""         External Com…
+    ## 6 1010… Point         Ext Comb … Fuel Com… ""           ""         External Com…
+    ## # … with 8 more variables: SCC.Level.Two <fct>, SCC.Level.Three <fct>,
+    ## #   SCC.Level.Four <fct>, Map.To <dbl>, Last.Inventory.Year <int>,
+    ## #   Created_Date <fct>, Revised_Date <fct>, Usage.Notes <fct>
+
+``` r
+str(SCC)
+```
+
+    ## tibble [11,717 × 15] (S3: tbl_df/tbl/data.frame)
+    ##  $ SCC                : Factor w/ 11717 levels "10100101","10100102",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ Data.Category      : Factor w/ 6 levels "Biogenic","Event",..: 6 6 6 6 6 6 6 6 6 6 ...
+    ##  $ Short.Name         : Factor w/ 11238 levels "","2,4-D Salts and Esters Prod /Process Vents, 2,4-D Recovery: Filtration",..: 3283 3284 3293 3291 3290 3294 3295 3296 3292 3289 ...
+    ##  $ EI.Sector          : Factor w/ 59 levels "Agriculture - Crops & Livestock Dust",..: 18 18 18 18 18 18 18 18 18 18 ...
+    ##  $ Option.Group       : Factor w/ 25 levels "","C/I Kerosene",..: 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ Option.Set         : Factor w/ 18 levels "","A","B","B1A",..: 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ SCC.Level.One      : Factor w/ 17 levels "Brick Kilns",..: 3 3 3 3 3 3 3 3 3 3 ...
+    ##  $ SCC.Level.Two      : Factor w/ 146 levels "","Agricultural Chemicals Production",..: 32 32 32 32 32 32 32 32 32 32 ...
+    ##  $ SCC.Level.Three    : Factor w/ 1061 levels "","100% Biosolids (e.g., sewage sludge, manure, mixtures of these matls)",..: 88 88 156 156 156 156 156 156 156 156 ...
+    ##  $ SCC.Level.Four     : Factor w/ 6084 levels "","(NH4)2 SO4 Acid Bath System and Evaporator",..: 4455 5583 4466 4458 1341 5246 5584 5983 4461 776 ...
+    ##  $ Map.To             : num [1:11717] NA NA NA NA NA NA NA NA NA NA ...
+    ##  $ Last.Inventory.Year: int [1:11717] NA NA NA NA NA NA NA NA NA NA ...
+    ##  $ Created_Date       : Factor w/ 57 levels "","1/27/2000 0:00:00",..: 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ Revised_Date       : Factor w/ 44 levels "","1/27/2000 0:00:00",..: 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ Usage.Notes        : Factor w/ 21 levels ""," ","includes bleaching towers, washer hoods, filtrate tanks, vacuum pump exhausts",..: 1 1 1 1 1 1 1 1 1 1 ...
